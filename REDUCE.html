@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Document</title>
+</head>
+
+<body>
+      <h1>Raj javascript🌎</h1>
+</body>
+
+<script> const users = [
+            { firstName: "akshay", lastName: "saini", age: 26 },
+            { firstName: "donald", lastName: "trump", age: 75 },
+            { firstName: "elon", lastName: "musk", age: 50 },
+            { firstName: "deepika", lastName: "padukone", age: 26 },
+      ];
+      //  ["akshay", deepika]
+
+      const output = users.reduce((acc, current) => {
+            if (current.age > 30) {
+                  acc.push(current.firstName);
+            }
+            return acc;
+      }, []);
+
+      console.log(output);
+
+
+
+</script>
+
+</html>
