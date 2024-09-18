@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sidebar Example</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+
+      #sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 200px;
+        height: 100%;
+        background-color: #333;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        padding-top: 50px;
+        transition: transform 0.3s ease;
+      }
+
+      .sidebar-item {
+        padding: 20px;
+        border-bottom: 1px solid #444;
+        cursor: pointer;
+      }
+
+      .sidebar-item:active {
+        background-color: #f3f3f3;
+        color: black;
+      }
+
+      #sidebar.hide {
+        transform: translateX(-100%);
+      }
+
+      section {
+        width: 100vw;
+        height: 100vh;
+      }
+
+      .firstSection,
+      .secondSection {
+        padding-left: 200px;
+        display: none; /* Hide by default */
+      }
+
+      .activeSection {
+        display: block; /* Show the active section */
+      }
+    </style>
+  </head>
+  <body>
+    <div id="sidebar">
+      <div class="sidebar-item" id="dashboard-btn">Dashboard</div>
+      <div class="sidebar-item" id="newbooking-btn">New Booking</div>
+    </div>
+
+    <section>
+      <div class="firstSection activeSection" id="dashboard-section">
+        <table>
+          <tr>
+            <td>Dashboard</td>
+            <td>Dashboard</td>
+            <td>Dashboard</td>
+            <td>Dashboard</td>
+            <td>Dashboard</td>
+          </tr>
+        </table>
+      </div>
+      <div class="secondSection" id="newbooking-section">
+        <table>
+          <tr>
+            <td>New Booking</td>
+            <td>New Booking</td>
+            <td>New Booking</td>
+            <td>New Booking</td>
+            <td>New Booking</td>
+          </tr>
+        </table>
+      </div>
+    </section>
+
+    <script>
+      const dashboardBtn = document.getElementById("dashboard-btn");
+      const newBookingBtn = document.getElementById("newbooking-btn");
+      const dashboardSection = document.getElementById("dashboard-section");
+      const newBookingSection = document.getElementById("newbooking-section");
+
+      // Add click event listener to Dashboard button
+      dashboardBtn.addEventListener("click", function () {
+        dashboardSection.classList.add("activeSection");
+        newBookingSection.classList.remove("activeSection");
+      });
+
+      // Add click event listener to New Booking button
+      newBookingBtn.addEventListener("click", function () {
+        newBookingSection.classList.add("activeSection");
+        dashboardSection.classList.remove("activeSection");
+      });
+    </script>
+  </body>
+</html>

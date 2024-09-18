@@ -19,9 +19,9 @@
       ];
       //  ["akshay", deepika]
 
-      const output = users.reduce((acc, current) => {
-            if (current.age > 30) {
-                  acc.push(current.firstName);
+      const output = users.reduce((acc, now) => {
+            if (now.firstName.length > 5) {
+                  acc.push(now.lastName);
             }
             return acc;
       }, []);
