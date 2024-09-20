@@ -7,7 +7,214 @@
       <title>Document</title>
 </head>
 
-<body>
+<body><!DOCTYPE html>
+      <html data-theme="cupcake" lang="en">
+      
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Document</title>
+          
+          <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.2/dist/full.min.css" rel="stylesheet" type="text/css" />
+          <script src="https://cdn.tailwindcss.com"></script>
+      </head>
+      
+      <body>
+          <!-- Page Header -->
+          <header>
+              <img src="https://noveloffice.in/wp-content/uploads/2023/08/novel-office-logo.webp" height="auto"
+                  alt="Novel Logo" title="Novel Office" style="max-width: 230px;">
+          </header>
+          <div id="navbar">
+            <div class="sidebar-item" id="dashboard-btn">Dashboard</div>
+            <div class="sidebar-item" id="newbooking-btn">New Booking</div>
+          </div>
+      
+          <div class="container flex items-center justify-center flex-col pt-2" id="first-section">
+              <div class="p-4 font-semibold text-xl flex justify-center">
+                  <h3><span class="text-purple-800">Pending</span> Bookings</h3>
+              </div>
+              <div class="container flex items-center justify-center" >
+                  <div class="overflow-x-auto w-5/6 ">
+                      <table class="table table-zebra">
+                          <!-- head -->
+                          <thead>
+                              <tr class="hover">
+                                  <th>SL.No</th>
+                                  <th>ID</th>
+                                  <th>Customer</th>
+                                  <th>Status</th>
+                                  <th>Location</th>
+                                  <th class="text-purple-800">Room type</th>
+                              </tr>
+                          </thead>
+                          <tbody class="tableBody">
+      
+                              <!--This content is appending from java script-->
+      
+                          </tbody>
+                      </table>
+                      <div class="pagination-controls-pending">
+                          <button class="prev-page-pending">Previous</button>
+                          <span class="page-number-pending">
+                              <span id="current-page-pending">1</span>
+                              &nbsp;of&nbsp;
+                              <span id="total-pages-pending">1</span>
+                          </span>
+                          <button class="next-page-pending">Next</button>
+                      </div>
+                  </div>
+                  <!-- You can open the modal using ID.showModal() method -->
+                  <dialog id="my_modal_3" class="modal">
+                      <div class="modal-box" style="min-width: 50%;">
+                          <form method="dialog">
+                              <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 closeBtn">✕</button>
+                          </form>
+                          <div class="modalContent flex items-center justify-center gap-2 flex-col">
+                              <div class="singleContent">
+                                  <div class="flex flex-col justify-center items-center w-full h-full">
+                                      <div class="">
+                                          <div class="p-5 ">
+                                              <div class=" grid grid-cols-2 mb-4">
+                                                  <div>
+                                                      <h2 class="pass-id text-xl font-bold undeline">Sample layout</h2>
+                                                  </div>
+                                                  <div class="card text-white status flex items-center justify-center p-2">
+                                                      <p>
+                                                          Accepted
+                                                      </p>
+                                                  </div>
+                                              </div>
+                                              <div class="grid grid-cols-2 gap-4 break-words">
+                                                  <div>
+                                                      <h5 class="text-xs">Customer</h5>
+                                                      <h2 class="text-2sm font-bold" id="fullname-field">-------</h2>
+                                                  </div>
+                                                  <div>
+                                                      <h5 class="text-xs">Email</h5>
+                                                      <h2 class="text-2sm font-bold" id="email-field">-------</h2>
+                                                  </div>
+                                                  <div>
+                                                      <h5 class="text-xs">Email CC Admin</h5>
+                                                      <h2 class="text-2sm font-bold" id="alternative-field">-------</h2>
+                                                  </div>
+                                                  <div>
+                                                      <h5 class="text-xs">Location</h5>
+                                                      <h2 class="text-2sm font-bold" id="company-field">-------</h2>
+                                                  </div>
+                                                  <div>
+                                                      <h5 class="text-xs">Room type</h5>
+                                                      <h2 class="text-2sm font-bold" id="leadId">-------</h2>
+                                                  </div>
+                                                  <div>
+                                                      <h5 class="text-xs">Room</h5>
+                                                      <h2 class="text-2sm font-bold" id="date-field">-------</h2>
+                                                  </div>
+                                                   <div class="flex align-center">
+                                                       <label for="myDate">Date: </label>
+                                                       <input type="date" id="myDate" value="">
+                                                  </div> 
+                                                  <div>
+                                                      <h5 class="text-xs"></h5>
+                                                      <h2 class="text-2sm font-bold text-purple-800" id="fullday-field">-------</h2>
+                                                  </div>
+                                              </div>
+                                                  <div id="slotsContainer"></div>
+                                          </div>
+                                          
+                                      </div>
+                                  </div>
+                              </div>
+                              <select class="select select-info w-full max-w-xs statusDropdown">
+                                  <option>Approved</option>
+                                  <option>Rejected</option>
+                              </select>
+                              <button class="btn btn-active submitBtn">Submit</button>
+                          </div>
+                      </div>
+                  </dialog>
+              </div>
+          </div>
+          <div id="second-section">
+             <div>
+              <form id="bookingForm">
+          <!-- Customer -->
+          <div>
+              <label for="customer">Customer</label>
+              <input type="text" id="customer" name="customer" autocomplete="off">
+              <div id="customerSuggestions" class="suggestions"></div>
+          </div>
+          
+          <div>
+              <label for="lead_id">Lead ID</label>
+              <input type="text" id="lead_id" name="lead_id" autocomplete="off">
+              <div id="leadSuggestions" class="suggestions"></div>
+          </div>
+      
+          <!-- Status -->
+          <div>
+            <label for="status">Status</label>
+            <select id="status" name="status">
+              <option value="Approved">Approved</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+          </div>
+      
+          <!-- Email -->
+          <div>
+              <label for="email">Email</label>
+              <input type="text" id="email" autocomplete="off" />
+              <div id="emailSuggestions" class="suggestions"></div>
+          </div>
+          <!-- Location -->
+          <div>
+              <label for="location">Location</label>
+              <select id="location">
+                  <option value="">Select Location</option>
+              </select>
+      
+          <!-- Room Type -->
+          <div>
+              <label for="room_type">Room Type</label>
+              <select id="room_type"> <option value="">Select Room Type</option></select>
+          </div>
+      
+          <!-- Room -->
+          <div>
+              <label for="room">Room</label>
+              <option value="">Select Room</option>
+          </div>
+      
+          <!-- Booking Date -->
+          <div>
+            <label for="booking_date">Booking Date</label>
+            <input type="date" id="booking_date" name="booking_date" value="">
+          </div>
+      
+          <div id="newSlotsContainer"></div>
+      
+          <button type="submit">Submit</button>
+        </form>
+             </div>
+          </div>
+      
+          
+          <dialog id="my_modal_1" class="modal">
+              <div class="modal-box">
+                  <h3 class="text-lg font-bold">Alert!</h3>
+                  <p class="py-4">Kindly login and refresh this page.</p>
+                  <div class="modal-action">
+                      <a href="/login" target="_blank"><button class="btn">Login</button></a>
+                  </div>
+              </div>
+          </dialog>
+          <!-- Page Footer -->
+          <footer>
+              <span style="font-size: 14px; margin: 0;">&copy; Copyright 2024 Novel Office.</span>
+          </footer>
+      </body>
+      
+      </html>
       <h1>Raj javascript🌎</h1>
 </body>
 

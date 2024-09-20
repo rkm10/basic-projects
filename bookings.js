@@ -40,6 +40,168 @@ const submitBtn = document.querySelector(".submitBtn");
 const toast = document.querySelector(".toast");
 const slotsContainer = document.getElementById('slotsContainer');
 const myDateInput = document.getElementById('myDate');
+// DOM Elements
+const bookingDateInput = document.getElementById('booking_date');
+const newSlotsContainer = document.getElementById('newSlotsContainer');
+
+// Event Listener for Booking Date Change
+bookingDateInput.addEventListener('change', function () {
+    const selectedDate = this.value;
+
+    // Generate new time slots for the selected date
+    generateNewTimeSlots(selectedDate);
+});
+
+// Function to generate new time slots
+function generateNewTimeSlots(date) {
+    newSlotsContainer.innerHTML = ''; // Clear existing slots
+    const timeSlots = [];
+    const start = new Date(`${date}T00:00:00`);
+    const end = new Date(`${date}T23:30:00`); // Adjusted to include the last slot at 23:30
+
+    while (start <= end) {
+        const hours = String(start.getHours()).padStart(2, '0');
+        const minutes = String(start.getMinutes()).padStart(2, '0');
+        const timeSlot = `${hours}:${minutes}`;
+        timeSlots.push(timeSlot);
+
+        // Create slot element
+        const slotElement = document.createElement('div');
+        slotElement.classList.add('time-slot');
+        slotElement.textContent = timeSlot;
+
+        // Allow selection
+        slotElement.addEventListener('click', () => {
+            slotElement.classList.toggle('selected');
+            slotElement.style.backgroundColor = slotElement.classList.contains('selected') ? '#4caf50' : '';
+        });
+
+        // Append the slot element to the new slots container
+        newSlotsContainer.appendChild(slotElement);
+
+        // Increment the time by 30 minutes
+        start.setMinutes(start.getMinutes() + 30);
+    }
+}
+
+// Function to fetch data for each doctype
+function fetchFormData(doctype, field, suggestionsElementId, filters = []) {
+    console.log(`Fetching data for: ${doctype} with filters:`, filters);
+
+    frappe.call({
+        method: "frappe.client.get_list",
+        args: {
+            doctype: doctype,
+            fields: [field],
+            filters: filters,
+        },
+        callback: function (response) {
+            console.log(`Response for ${doctype}:`, response);
+            if (doctype === 'Property Location' || doctype === 'Room Type') {
+                const selectElement = document.getElementById(doctype === 'Property Location' ? 'location' : 'room_type');
+                selectElement.innerHTML = '<option value="">Select</option>'; // Clear previous options
+                response.message.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item[field];
+                    option.textContent = item[field];
+                    selectElement.appendChild(option);
+                });
+            } else {
+                const suggestionsElement = document.getElementById(suggestionsElementId);
+                suggestionsElement.innerHTML = ''; // Clear previous suggestions
+                response.message.forEach(item => {
+                    const suggestionItem = document.createElement('div');
+                    suggestionItem.className = 'suggestion-item';
+                    suggestionItem.textContent = item[field];
+
+                    // Add click event to select the suggestion
+                    suggestionItem.addEventListener('click', function () {
+                        const inputField = doctype === 'Customer' ? 'customer' :
+                                           doctype === 'Lead' ? 'lead_id' : 'email';
+                        document.getElementById(inputField).value = item[field];
+                        suggestionsElement.innerHTML = ''; // Clear suggestions after selection
+                    });
+
+                    suggestionsElement.appendChild(suggestionItem);
+                });
+            }
+        }
+    });
+}
+
+// Fetch static data on page load
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('Page loaded, fetching locations and room types...');
+    fetchFormData('Property Location', 'name', null); // No suggestions needed
+    fetchFormData('Room Type', 'name', null); // No suggestions needed
+});
+
+// Event listeners for customer, lead, and email search fields
+document.getElementById('customer').addEventListener('input', function () {
+    const query = this.value;
+    fetchFormData('Customer', 'customer_name', 'customerSuggestions', [['customer_name', 'like', `%${query}%`]]);
+});
+
+document.getElementById('lead_id').addEventListener('input', function () {
+    const query = this.value;
+    fetchFormData('Lead', 'name', 'leadSuggestions', [['name', 'like', `%${query}%`]]);
+});
+
+document.getElementById('email').addEventListener('input', function () {
+    const query = this.value;
+    fetchFormData('User', 'name', 'emailSuggestions', [['name', 'like', `%${query}%`]]);
+});
+
+// Event listener for location and room type changes to fetch rooms based on filters
+document.getElementById('location').addEventListener('change', function () {
+    const selectedLocation = this.value;
+    const selectedRoomType = document.getElementById('room_type').value;
+    console.log(`Location changed: ${selectedLocation}, Room Type: ${selectedRoomType}`);
+    fetchRooms(selectedLocation, selectedRoomType);
+});
+
+document.getElementById('room_type').addEventListener('change', function () {
+    const selectedLocation = document.getElementById('location').value;
+    const selectedRoomType = this.value;
+    console.log(`Room Type changed: ${selectedRoomType}, Location: ${selectedLocation}`);
+    fetchRooms(selectedLocation, selectedRoomType);
+});
+
+// Function to fetch rooms based on selected location and room type
+function fetchRooms(location, roomType) {
+    console.log(`Fetching rooms for location: ${location} and room type: ${roomType}`);
+
+    const filters = [
+        ['location', '=', location],
+        ['room_type', '=', roomType]
+    ];
+
+    fetchFormData('Rooms', 'room_name', null, filters); // No suggestions needed for rooms
+}
+
+
+
+// Handle form submission
+document.getElementById('bookingForm').addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const formData = {
+        customer: document.getElementById('customer').value,
+        lead_id: document.getElementById('lead_id').value,
+        status: document.getElementById('status').value,
+        email: document.getElementById('email').value,
+        location: document.getElementById('location').value,
+        room_type: document.getElementById('room_type').value,
+        room: document.getElementById('room').value,
+        booking_date: document.getElementById('booking_date').value,
+        booking_time: document.getElementById('booking_time').value
+    };
+
+    console.log('Form Data Submitted:', formData);
+
+    // Here, you can send formData to the server
+    // Example: fetch('/submit', { method: 'POST', body: JSON.stringify(formData) })
+});
 
 // Pagination Variables
 let currentPagePending = 1; // Current page number for pending bookings
