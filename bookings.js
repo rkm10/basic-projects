@@ -402,11 +402,15 @@ function fetchSingleData(id) {
             doctype: "Room Booking slot",
             name: id,
         },
-        callback: function (response) {
+        callback: async function (response) {
             const record = response.message;
 
             // Store the current record's ID
             PassId = id;
+
+
+            // Fetch all bookings based on location, room type, and room of the current record
+            await fetchAllBookingsForRecord(record);
 
             // Call handleRecordOpen() to process the booking times and slots
             handleRecordOpen(record);
@@ -630,11 +634,13 @@ function updateStatus() {
             fieldname: {
                 "status": selectedStatus,
                 "booking_time": selectedTimes.length === 48 ? "Full Day" : JSON.stringify(selectedTimes),
-                "booking_date": bookingDate // Include the booking date
+                "booking_date": bookingDate, // Include the booking date
+                "block_temp": 0
             }
         },
         callback: function (response) {
-            showToast("Successfully updated!");
+            console.log(response);
+            // showToast("Successfully updated!");
             setTimeout(() => {
                 location.reload(); // Reload the page after the toast
             }, 2000);

@@ -1,3 +1,4 @@
+
 // Global Variables
 let allBookings = []; // Store all bookings globally
 let currentRecord = null; // Store the current record globally
@@ -78,7 +79,6 @@ myDateInput.addEventListener('change', function () {
 
     // Regenerate time slots based on the newly selected date
     generateTimeSlots(selectedDate, bookingTimesForCurrentRecord, currentRecord ? currentRecord.booking_date : null);
-
 });
 
 // Function to fetch all bookings for a specific location, room type, and room based on the current record
@@ -151,6 +151,11 @@ function generateTimeSlots(date, bookingTimesForCurrentRecord, currentRecordDate
             }
         });
 
+    // Function to check if two arrays have any common elements (overlap)
+    function hasCommonSlots(arr1, arr2) {
+        return arr1.some(slot => arr2.includes(slot));
+    }
+
     while (start <= end) {
         const hours = String(start.getHours()).padStart(2, '0');
         const minutes = String(start.getMinutes()).padStart(2, '0');
@@ -165,32 +170,13 @@ function generateTimeSlots(date, bookingTimesForCurrentRecord, currentRecordDate
         const isGloballyBooked = globallyBookedTimes.includes(timeSlot);
         // Check if the slot is part of the current record's booking time
         const isCurrentRecordSlot = bookingTimesForCurrentRecord.includes(timeSlot);
-        // Check if the slot is in both globally booked times and the current record
-        const isCommonSlot = isGloballyBooked && isCurrentRecordSlot;
+        // Check for common slots between globally booked times and current record slots
+
+        const hasCommonSlotsWithCurrentRecord = hasCommonSlots(bookingTimesForCurrentRecord, globallyBookedTimes);
+        console.log(hasCommonSlotsWithCurrentRecord, "hasCommonSlotsWithCurrentRecord")
 
         if (date === currentRecordDate) {
-            if (isCommonSlot) {
-                // Red slots for common slots (globally booked + current record)
-                slotElement.classList.add('selected');
-                slotElement.style.backgroundColor = 'red';
-                slotElement.style.color = 'white';
-
-                // Allow deselection for common slots, and mark as globally booked (disabled) when deselected
-                slotElement.addEventListener('click', () => {
-                    slotElement.classList.toggle('selected');
-
-                    if (!slotElement.classList.contains('selected')) {
-                        // When deselected, mark as globally booked (disabled)
-                        slotElement.classList.add('disabled');
-                        slotElement.style.backgroundColor = '#999999b8'; // Grey color
-                        slotElement.style.color = 'white';
-                        slotElement.style.cursor = 'not-allowed';
-                    } else {
-                        // Re-select (if needed)
-                        slotElement.style.backgroundColor = 'red';
-                    }
-                });
-            } else if (isCurrentRecordSlot) {
+            if (isCurrentRecordSlot) {
                 // Blue slots for current record's booking times
                 slotElement.classList.add('selected');
                 slotElement.style.backgroundColor = '#2f41ec';
@@ -200,7 +186,13 @@ function generateTimeSlots(date, bookingTimesForCurrentRecord, currentRecordDate
                     slotElement.classList.toggle('selected');
                     slotElement.style.backgroundColor = slotElement.classList.contains('selected') ? '#2f41ec' : '';
                 });
-            } else if (isGloballyBooked) {
+            } else if (hasCommonSlotsWithCurrentRecord) {
+                // Red slots if current record's slots overlap with globally booked slots
+                slotElement.classList.add('selected');
+                slotElement.style.backgroundColor = 'red';
+                slotElement.style.color = 'white';
+            }
+            else if (isGloballyBooked) {
                 // Grey slots for globally booked times not part of the current record
                 slotElement.classList.add('disabled');
                 slotElement.style.backgroundColor = '#999999b8';
@@ -237,7 +229,6 @@ function generateTimeSlots(date, bookingTimesForCurrentRecord, currentRecordDate
         start.setMinutes(start.getMinutes() + 30);
     }
 }
-
 
 
 // Function to handle a record being opened
@@ -332,7 +323,10 @@ function showDetails(id) {
     fetchSingleData(id); // Fetch and open the record
 }
 
-
+// // Call fetchAllBookings when the page loads
+// window.onload = async function () {
+//     await fetchAllBookingsForRecord(); // Fetch all globally booked times
+// };
 // Toast Notification
 const toastStyle = document.createElement('style');
 toastStyle.innerHTML = `
@@ -511,64 +505,23 @@ function updateStatus() {
 }
 
 
+// starting here second-section || new booking //
+// DOM Elements
+const bookingDateInput = document.getElementById('booking_date');
+const newSlotsContainer = document.getElementById('newSlotsContainer');
 
-//-----------------------------------------------second section--------------------------------------------------------//
+// Event Listener for Booking Date Change
+bookingDateInput.addEventListener('change', function () {
+    const selectedDate = this.value;
 
+    // Generate new time slots for the selected date
+    generateNewTimeSlots(selectedDate);
+});
 
-// Fetch booked slots based on the selected filters
-async function fetchBookedSlots(location, roomType, room, dates) {
-    console.log('bookingDate::', dates);
-
-    return new Promise((resolve, reject) => {
-        frappe.call({
-            method: "frappe.client.get_list",
-            args: {
-                doctype: "Room Booking slot",
-                fields: ['booking_time'],
-                filters: [
-                    ['location', '=', location],
-                    ['room_type', '=', roomType],
-                    ['room', '=', location + ' - ' + room],
-                    ['booking_date', '=', dates],
-                    ['status', '=', 'Approved']
-                ]
-            },
-            callback: function (response) {
-                if (response.message) {
-                    // Parse each booked slot's time from string into an array and flatten it
-                    const bookedSlots = response.message
-                        .map(slot => JSON.parse(slot.booking_time)) // Parse the string
-                        .flat(); // Flatten the arrays into a single array of time strings
-
-                    // Remove duplicates using Set
-                    const uniqueBookedSlots = [...new Set(bookedSlots)];
-                    resolve(uniqueBookedSlots);
-                } else {
-                    resolve([]); // No booked slots found
-                }
-            },
-            error: function (err) {
-                console.error("Error fetching booked slots:", err);
-                reject(err);
-            }
-        });
-    });
-}
-
-// Generate new time slots and disable booked ones
-async function generateNewTimeSlots(date) {
-    const location = document.getElementById('location').value;
-    const roomType = document.getElementById('room_type').value;
-    const room = document.getElementById('room').value;
-    const dates = document.getElementById('booking_date').value;
-
-    // Clear existing slots
-    newSlotsContainer.innerHTML = '';
-
-    // Fetch already booked slots for the selected date
-    const bookedSlots = await fetchBookedSlots(location, roomType, room, dates);
-    console.log('bookedSlots::', bookedSlots); // To verify parsed and flattened slots
-
+// Function to generate new time slots
+function generateNewTimeSlots(date) {
+    newSlotsContainer.innerHTML = ''; // Clear existing slots
+    const timeSlots = [];
     const start = new Date(`${date}T00:00:00`);
     const end = new Date(`${date}T23:30:00`); // Adjusted to include the last slot at 23:30
 
@@ -576,28 +529,18 @@ async function generateNewTimeSlots(date) {
         const hours = String(start.getHours()).padStart(2, '0');
         const minutes = String(start.getMinutes()).padStart(2, '0');
         const timeSlot = `${hours}:${minutes}`;
-
-        console.log('Checking timeSlot:', timeSlot); // Log each generated slot
+        timeSlots.push(timeSlot);
 
         // Create slot element
         const slotElement = document.createElement('div');
         slotElement.classList.add('time-slot');
         slotElement.textContent = timeSlot;
 
-        // Check if the time slot is already booked
-        if (bookedSlots.includes(timeSlot)) {
-            console.log(`Disabling slot: ${timeSlot}`);
-            slotElement.classList.add('disabled');
-            slotElement.style.backgroundColor = '#999999b8'; // Grey color
-            slotElement.style.color = 'white';
-            slotElement.style.cursor = 'not-allowed';
-        } else {
-            // Allow selection for available slots
-            slotElement.addEventListener('click', () => {
-                slotElement.classList.toggle('selected');
-                slotElement.style.backgroundColor = slotElement.classList.contains('selected') ? '#4caf50' : '';
-            });
-        }
+        // Allow selection
+        slotElement.addEventListener('click', () => {
+            slotElement.classList.toggle('selected');
+            slotElement.style.backgroundColor = slotElement.classList.contains('selected') ? '#4caf50' : '';
+        });
 
         // Append the slot element to the new slots container
         newSlotsContainer.appendChild(slotElement);
@@ -606,18 +549,6 @@ async function generateNewTimeSlots(date) {
         start.setMinutes(start.getMinutes() + 30);
     }
 }
-
-// Call generateNewTimeSlots on date change
-const bookingDateInput = document.getElementById('booking_date');
-const newSlotsContainer = document.getElementById('newSlotsContainer');
-
-bookingDateInput.addEventListener('change', function () {
-    const selectedDate = this.value;
-
-    // Generate new time slots for the selected date
-    generateNewTimeSlots(selectedDate);
-});
-
 
 // Function to fetch data for each doctype
 function fetchFormData(doctype, field, suggestionsElementId, filters = []) {
@@ -725,7 +656,6 @@ function fetchRooms(location, roomType) {
 
 
 // Handle form submission
-// Handle form submission
 document.getElementById('bookingForm').addEventListener('submit', (event) => {
     event.preventDefault();
 
@@ -738,62 +668,13 @@ document.getElementById('bookingForm').addEventListener('submit', (event) => {
         room_type: document.getElementById('room_type').value,
         room: document.getElementById('room').value,
         booking_date: document.getElementById('booking_date').value,
-        booking_time: getSelectedSlots() // Fetch the selected time slots as booking time
+        booking_time: document.getElementById('booking_time').value
     };
 
     console.log('Form Data Submitted:', formData);
 
-    // Pass the formData to create a new booking record
-    createNewBooking(formData);
+    // Here, you can send formData to the server
+    // Example: fetch('/submit', { method: 'POST', body: JSON.stringify(formData) })
 });
-
-// Function to get selected time slots
-function getSelectedSlots() {
-    const selectedSlots = document.querySelectorAll('.time-slot.selected');
-    return Array.from(selectedSlots).map(slot => slot.textContent);
-}
-
-// Create new booking record
-function createNewBooking(formData) {
-    if (formData.booking_time.length === 0) {
-        showToast("Please select at least one time slot!");
-        return;
-    }
-
-    // Create the booking in the database
-    frappe.call({
-        method: "frappe.client.insert",
-        args: {
-            doc: {
-                doctype: "Room Booking slot",
-                customer: formData.customer,
-                lead_id: formData.lead_id,
-                status: formData.status,
-                email: formData.email,
-                location: formData.location,
-                room_type: formData.room_type,
-                room: formData.room,
-                booking_date: formData.booking_date,
-                booking_time: JSON.stringify(formData.booking_time), // Send selected times
-                block_temp: 0
-            }
-        },
-        callback: function (response) {
-            console.log(response);
-            if (response && response.message) {
-                showToast("Booking created successfully!");
-                setTimeout(() => {
-                    location.reload(); // Reload the page after a delay
-                }, 2000);
-            } else {
-                showToast("Error creating booking!");
-            }
-        },
-        error: function (err) {
-            console.error("Error creating booking:", err);
-            showToast("Error creating booking!");
-        }
-    });
-}
 
 // ends here second-section || new booking //
