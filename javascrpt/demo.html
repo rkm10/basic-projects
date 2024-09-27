@@ -1,210 +1,257 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html data-theme="cupcake" lang="en">
 
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Google Font Link for Icons -->
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+    <title>Document</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.2/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body>
-    <div class="wrapper">
-        <div class="wrapper-header">
-            <p class="current-date"></p>
-            <div class="icons">
-                <span id="prev" class="material-symbols-rounded">chevron_left</span>
-                <span id="next" class="material-symbols-rounded">chevron_right</span>
-            </div>
+    <!-- Page Header -->
+    <header>
+        <img src="https://noveloffice.in/wp-content/uploads/2023/08/novel-office-logo.webp" height="auto"
+            alt="Novel Logo" title="Novel Office" style="max-width: 230px;">
+    </header>
+    <div id="navbar">
+        <div class="sidebar-item" id="dashboard-btn">Dashboard</div>
+        <div class="sidebar-item" id="newbooking-btn">New Booking</div>
+    </div>
+
+    <div class="container flex items-center justify-center flex-col pt-2" id="first-section">
+        <div class="p-4 font-semibold text-xl flex justify-center">
+            <h3><span class="text-purple-800">Pending</span> Bookings</h3>
         </div>
-        <div class="calendar">
-            <ul class="weeks">
-                <li>Sun</li>
-                <li>Mon</li>
-                <li>Tue</li>
-                <li>Wed</li>
-                <li>Thu</li>
-                <li>Fri</li>
-                <li>Sat</li>
-            </ul>
-            <ul class="days"></ul>
+        <div class="container flex items-center justify-center">
+            <div class="overflow-x-auto w-5/6 ">
+                <table class="table table-zebra">
+                    <!-- head -->
+                    <thead>
+                        <tr class="hover">
+                            <th>SL.No</th>
+                            <th>ID</th>
+                            <th>Customer</th>
+                            <th>Status</th>
+                            <th>Location</th>
+                            <th>Room type</th>
+                            <th class="text-purple-800">Booking type</th>
+                        </tr>
+                    </thead>
+                    <tbody class="tableBody">
+
+                        <!--This content is appending from java script-->
+
+                    </tbody>
+                </table>
+                <div class="pagination-controls-pending">
+                    <button class="prev-page-pending">Previous</button>
+                    <span class="page-number-pending">
+                        <span id="current-page-pending">1</span>
+                        &nbsp;of&nbsp;
+                        <span id="total-pages-pending">1</span>
+                    </span>
+                    <button class="next-page-pending">Next</button>
+                </div>
+            </div>
+            <!-- You can open the modal using ID.showModal() method -->
+            <dialog id="my_modal_3" class="modal">
+                <div class="modal-box" style="min-width: 50%;">
+                    <!--<form method="dialog">-->
+                    <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 closeBtn">✕</button>
+                    <!--</form>-->
+                    <div class="modalContent flex items-center justify-center gap-2 flex-col">
+                        <div class="singleContent">
+                            <div class="flex flex-col justify-center items-center w-full h-full">
+                                <div class="">
+                                    <div class="p-5 ">
+                                        <div class=" grid grid-cols-2 mb-4">
+                                            <div>
+                                                <h2 class="pass-id text-xl font-bold undeline">Sample layout</h2>
+                                            </div>
+                                            <div class="card text-white status flex items-center justify-center p-2">
+                                                <p>
+                                                    Accepted
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-4 break-words">
+                                            <div>
+                                                <h5 class="text-xs">Customer</h5>
+                                                <h2 class="text-2sm font-bold" id="fullname-field">-------</h2>
+                                            </div>
+                                            <div>
+                                                <h5 class="text-xs">Email</h5>
+                                                <h2 class="text-2sm font-bold" id="email-field">-------</h2>
+                                            </div>
+                                            <div>
+                                                <h5 class="text-xs">Location</h5>
+                                                <h2 class="text-2sm font-bold" id="company-field">-------</h2>
+                                            </div>
+                                            <div>
+                                                <h5 class="text-xs">Room Type</h5>
+                                                <h2 class="text-2sm font-bold" id="leadId">-------</h2>
+                                            </div>
+                                            <div>
+                                                <h5 class="text-xs">Booking Type</h5>
+                                                <h2 class="text-2sm font-bold text-purple-800" id="bookingType">-------
+                                                </h2>
+                                            </div>
+                                        </div>
+                                        <div class="mt-2 mb-2">
+                                            <h5 class="text-xs">Room Name</h5>
+                                            <h2 class="text-2sm font-bold" id="date-field">-------</h2>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-4 break-words mt-2">
+
+
+                                            <div class="flex align-center">
+                                                <label for="myDate">Date: </label>
+                                                <input type="date" id="myDate" value="">
+                                            </div>
+                                        </div>
+                                        <div class="color-shade">
+                                            <div style="display: flex; align-items: center; justify-content: center;">
+                                                <div
+                                                    style="background-color: #4caf50; height: 2rem; width: 2rem; border-radius: 50%;">
+                                                </div>
+                                                <p>&nbsp;-----> &nbsp;New slots</p>
+                                            </div>
+
+                                            <div style="display: flex; align-items: center; justify-content: center;">
+                                                <div
+                                                    style="background-color: #999999b8; height: 2rem; width: 2rem; border-radius: 50%;">
+                                                </div>
+                                                <p>&nbsp;-----> &nbsp;Other selected Slots</p>
+                                            </div>
+
+                                            <div style="display: flex; align-items: center; justify-content: center;">
+                                                <div
+                                                    style="background-color: #2f41ec; height: 2rem; width: 2rem; border-radius: 50%;">
+                                                </div>
+                                                <p>&nbsp;-----> &nbsp;This record selected slots</p>
+                                            </div>
+                                            <div style="display: flex; align-items: center; justify-content: center;">
+                                                <div
+                                                    style="background-color: #ec2f2f; height: 2rem; width: 2rem; border-radius: 50%;">
+                                                </div>
+                                                <p>&nbsp;-----> &nbsp;This slot has mutliple selection</p>
+                                            </div>
+                                        </div>
+                                        <div id="slotsContainer"></div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <select class="select select-info w-full max-w-xs statusDropdown">
+                            <option>Approved</option>
+                            <option>Rejected</option>
+                        </select>
+                        <button class="btn btn-active submitBtn">Submit</button>
+                    </div>
+                </div>
+            </dialog>
+        </div>
+    </div>
+    <div id="second-section">
+        <div class="flex justify-center items-center  mb-20">
+            <form id="bookingForm">
+                <div class="flex flex-row justify-around gap-6 items-center">
+                    <!-- Customer -->
+                    <div class="grid grid-cols-2 gap-4 break-words">
+                        <div>
+                            <label for="customer">Customer</label>
+                            <input type="text" id="customer" name="customer" autocomplete="off">
+                            <div id="customerSuggestions" class="suggestions"></div>
+                        </div>
+
+                        <div class="flex flex-col gap-2">
+                            <select id="lead_id">
+                                <option value="">Select Lead</option>
+                            </select>
+                            <select id="booking_type_id">
+                                <option value="">Select booking type</option>
+                                <option>Hourly</option>
+                                <option>Full Day</option>
+                            </select>
+                        </div>
+
+                        <!-- Status -->
+                        <div>
+                            <label for="status">Status</label>
+                            <select id="status" name="status">
+                                <option value="Approved">Approved</option>
+                                <option value="Rejected">Rejected</option>
+                            </select>
+                        </div>
+
+                        <!-- Email -->
+                        <div>
+                            <label for="email">Email</label>
+                            <input type="text" id="email" autocomplete="off" />
+                            <div id="emailSuggestions" class="suggestions"></div>
+                        </div>
+                        <!-- Location -->
+                        <div>
+                            <label for="location">Location</label>
+                            <select id="location">
+                                <option value="">Select Location</option>
+                            </select>
+                        </div>
+                        <!-- Room Type -->
+                        <div>
+                            <label for="room_type">Room Type</label>
+                            <select id="room_type">
+                                <option value="">Select Room Type</option>
+                            </select>
+                        </div>
+
+                        <!-- Room -->
+                        <div>
+                            <label for="room">Room</label>
+                            <select id="room">
+                                <option value="">Select Room</option>
+                            </select>
+                        </div>
+                        <!-- Booking Date -->
+                        <div>
+                            <label for="booking_date">Booking Date</label>
+                            <input type="date" id="booking_date" name="booking_date" value="">
+                        </div>
+                        <button type="submit" class="btn btn-active submitBtn">Submit</button>
+
+                    </div>
+                    <div id="newSlotsContainer"></div>
+                </div>
+
+            </form>
         </div>
     </div>
 
+
+    <div class="toast">
+        <h2>
+            <i class="fa-solid fa-circle-check"></i>
+            <span>Slot Booked Successful</span>
+        </h2>
+    </div>
+
+    <dialog id="my_modal_1" class="modal">
+        <div class="modal-box">
+            <h3 class="text-lg font-bold">Alert!</h3>
+            <p class="py-4">Kindly login and refresh this page.</p>
+            <div class="modal-action">
+                <a href="/login" target="_blank"><button class="btn">Login</button></a>
+            </div>
+        </div>
+    </dialog>
+    <!-- Page Footer -->
+    <footer>
+        <span style="font-size: 14px; margin: 0;">&copy; Copyright 2024 Novel Office.</span>
+    </footer>
 </body>
-<style>
-    /* Import Google font - Poppins */
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
-
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: 'Poppins', sans-serif;
-    }
-
-    .wrapper {
-        width: 300px;
-        background: #fff;
-        border-radius: 10px;
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
-    }
-
-    .wrapper-header {
-        display: flex;
-        align-items: center;
-        padding: 25px 30px 10px;
-        justify-content: space-between;
-    }
-
-    .wrapper-header .icons {
-        display: flex;
-    }
-
-    .wrapper-header .icons span {
-        height: 38px;
-        width: 38px;
-        margin: 0 1px;
-        cursor: pointer;
-        color: #878787;
-        text-align: center;
-        line-height: 38px;
-        /* font-size: 1.9rem; */
-        user-select: none;
-        border-radius: 50%;
-    }
-
-    .icons span:last-child {
-        margin-right: -10px;
-    }
-
-    .wrapper-header .icons span:hover {
-        background: #f2f2f2;
-    }
-
-    .wrapper-header .current-date {
-        font-size: 1rem;
-        font-weight: 500;
-    }
-
-    .calendar {
-        padding: 20px;
-    }
-
-    .calendar ul {
-        display: flex;
-        flex-wrap: wrap;
-        list-style: none;
-        text-align: center;
-    }
-
-    .calendar .days {
-        margin-bottom: 20px;
-    }
-
-    .calendar li {
-        color: #333;
-        width: calc(100% / 7);
-        font-size: 0.8rem;
-    }
-
-    .calendar .weeks li {
-        font-weight: 500;
-        cursor: default;
-    }
-
-    .calendar .days li {
-        z-index: 1;
-        cursor: pointer;
-        position: relative;
-        margin-top: 30px;
-    }
-
-    .days li.inactive {
-        color: #aaa;
-    }
-
-    .days li.active {
-        color: #fff;
-    }
-
-    .days li::before {
-        position: absolute;
-        content: "";
-        left: 50%;
-        top: 50%;
-        height: 40px;
-        width: 40px;
-        z-index: -1;
-        border-radius: 50%;
-        transform: translate(-50%, -50%);
-    }
-
-    .days li.active::before {
-        background: #9B59B6;
-    }
-
-    .days li:not(.active):hover::before {
-        background: #f2f2f2;
-    }
-</style>
-<script>
-    const daysTag = document.querySelector(".days"),
-        currentDate = document.querySelector(".current-date"),
-        prevNextIcon = document.querySelectorAll(".icons span");
-
-    // getting new date, current year and month
-    let date = new Date(),
-        currYear = date.getFullYear(),
-        currMonth = date.getMonth();
-
-    // storing full name of all months in array
-    const months = ["January", "February", "March", "April", "May", "June", "July",
-        "August", "September", "October", "November", "December"];
-
-    const renderCalendar = () => {
-        let firstDayofMonth = new Date(currYear, currMonth, 1).getDay(), // getting first day of month
-            lastDateofMonth = new Date(currYear, currMonth + 1, 0).getDate(), // getting last date of month
-            lastDayofMonth = new Date(currYear, currMonth, lastDateofMonth).getDay(), // getting last day of month
-            lastDateofLastMonth = new Date(currYear, currMonth, 0).getDate(); // getting last date of previous month
-        let liTag = "";
-
-        for (let i = firstDayofMonth; i > 0; i--) { // creating li of previous month last days
-            liTag += `<li class="inactive">${lastDateofLastMonth - i + 1}</li>`;
-        }
-
-        for (let i = 1; i <= lastDateofMonth; i++) { // creating li of all days of current month
-            // adding active class to li if the current day, month, and year matched
-            let isToday = i === date.getDate() && currMonth === new Date().getMonth()
-                && currYear === new Date().getFullYear() ? "active" : "";
-            liTag += `<li class="${isToday}">${i}</li>`;
-        }
-
-        for (let i = lastDayofMonth; i < 6; i++) { // creating li of next month first days
-            liTag += `<li class="inactive">${i - lastDayofMonth + 1}</li>`
-        }
-        currentDate.innerText = `${months[currMonth]} ${currYear}`; // passing current mon and yr as currentDate text
-        daysTag.innerHTML = liTag;
-    }
-    renderCalendar();
-
-    prevNextIcon.forEach(icon => { // getting prev and next icons
-        icon.addEventListener("click", () => { // adding click event on both icons
-            // if clicked icon is previous icon then decrement current month by 1 else increment it by 1
-            currMonth = icon.id === "prev" ? currMonth - 1 : currMonth + 1;
-
-            if (currMonth < 0 || currMonth > 11) { // if current month is less than 0 or greater than 11
-                // creating a new date of current year & month and pass it as date value
-                date = new Date(currYear, currMonth, new Date().getDate());
-                currYear = date.getFullYear(); // updating current year with new date year
-                currMonth = date.getMonth(); // updating current month with new date month
-            } else {
-                date = new Date(); // pass the current date as date value
-            }
-            renderCalendar(); // calling renderCalendar function
-        });
-    });
-</script>
 
 </html>

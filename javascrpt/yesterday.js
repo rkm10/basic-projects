@@ -52,7 +52,6 @@ function resetModalContent() {
     document.getElementById("company-field").innerHTML = '';
     document.getElementById("date-field").innerHTML = '';
     document.getElementById("myDate").value = '';
-    document.getElementById("fullday-field").innerHTML = '';
     document.querySelector(".status").innerHTML = '';
 }
 
@@ -86,8 +85,10 @@ async function fetchAllBookingsForRecord(record) {
     const filters = [
         ['location', '=', record.location],
         ['room_type', '=', record.room_type],
-        ['room', '=', record.room]
+        ['room', '=', record.room],
+        ['status', 'IN', ['Approved', 'pending']]  // Filter for both 'Approved' and 'pending' statuses
     ];
+
 
     return new Promise((resolve, reject) => {
         frappe.call({
@@ -95,12 +96,12 @@ async function fetchAllBookingsForRecord(record) {
             args: {
                 doctype: "Room Booking slot",
                 fields: ['name', 'booking_date', 'booking_time'], // Include 'name' field
-                filters: filters // Fetch bookings based on location, room type, and room
+                filters: filters,// Fetch bookings based on location, room type, and room
             },
             callback: function (response) {
                 if (response && response.message) {
                     allBookings = response.message; // Store all relevant bookings globally
-                    console.log("Filtered bookings fetched:", allBookings);
+                    //                    console.log("Filtered bookings fetched:", allBookings);
                     resolve();
                 } else {
                     reject("Failed to fetch filtered bookings.");
@@ -290,9 +291,10 @@ function fetchSingleData(id) {
 
 // Inserting booking data into modal
 function appendDetails(data) {
-    console.log(data);
+    //    console.log(data);
     document.querySelector(".pass-id").innerHTML = data.name;
     document.querySelector("#leadId").innerHTML = data.room_type;
+    document.querySelector("#bookingType").innerHTML = data.type_of_booking;
     document.querySelector(".card").innerHTML = data.status;
     document.getElementById("email-field").innerHTML = data.email;
     document.getElementById("fullname-field").innerHTML = data.customer;
@@ -301,12 +303,6 @@ function appendDetails(data) {
     document.getElementById("myDate").value = data.booking_date;
 
     const bookTime = data.booking_time;
-
-    if (bookTime === "Full Day") {
-        document.getElementById("fullday-field").innerHTML = "Full Day Booked";
-    } else {
-        document.getElementById("fullday-field").innerHTML = "Booked slots";
-    }
 
     let statusDiv = document.querySelector(".status");
     statusDiv.innerHTML = data.status;
@@ -422,7 +418,7 @@ async function fetchData(pagePending, checkData = false) {
         method: "frappe.client.get_list",
         args: {
             doctype: "Room Booking slot",
-            fields: ['name', 'status', 'customer', 'location', 'room_type', 'booking_date', 'booking_time', 'block_temp'],
+            fields: ['name', 'status', 'customer', 'location', 'room_type', 'booking_date', 'booking_time', 'block_temp', 'type_of_booking'],
             limit_start: (pagePending - 1) * itemsPerPage,
             limit_page_length: itemsPerPage,
             filters: [['status', '=', 'Pending'], ['block_temp', '=', '0']] // Fetch pending records only with block_temp = 0
@@ -454,8 +450,9 @@ function togglePaginationButtons(type, dataLength) {
 
 // Utility function to create tables
 function constructTable(data, slNo, tableName) {
+
     let tableBody = document.querySelector(`.${tableName}`);
-    console.log(data);
+    //    console.log(data);
 
     let tableRow = document.createElement("tr");
     tableRow.classList.add("hover", "tableRow");
@@ -469,6 +466,7 @@ function constructTable(data, slNo, tableName) {
         <td>${data.status}</td>
         <td>${data.location}</td>
         <td>${data.room_type}</td>
+        <td class='font-bold'>${data.type_of_booking}</td>
     `;
 
     tableBody.appendChild(tableRow);
@@ -480,7 +478,7 @@ function updateStatus() {
     selectedTimes = Array.from(selectedSlots).map(slot => slot.textContent);
 
     if (selectedTimes.length === 0) {
-        showToast("Please select at least one time slot!");
+        alert("Please select at least one time slot!");
         return;
     }
 
@@ -501,7 +499,7 @@ function updateStatus() {
             }
         },
         callback: function (response) {
-            console.log(response);
+            //            console.log(response);
             // showToast("Successfully updated!");
             setTimeout(() => {
                 location.reload(); // Reload the page after the toast
@@ -517,7 +515,7 @@ function updateStatus() {
 
 // Fetch booked slots based on the selected filters
 async function fetchBookedSlots(location, roomType, room, dates) {
-    console.log('bookingDate::', dates);
+    //    console.log('bookingDate::', dates);
 
     return new Promise((resolve, reject) => {
         frappe.call({
@@ -567,7 +565,7 @@ async function generateNewTimeSlots(date) {
 
     // Fetch already booked slots for the selected date
     const bookedSlots = await fetchBookedSlots(location, roomType, room, dates);
-    console.log('bookedSlots::', bookedSlots); // To verify parsed and flattened slots
+    //    console.log('bookedSlots::', bookedSlots); // To verify parsed and flattened slots
 
     const start = new Date(`${date}T00:00:00`);
     const end = new Date(`${date}T23:30:00`); // Adjusted to include the last slot at 23:30
@@ -577,7 +575,7 @@ async function generateNewTimeSlots(date) {
         const minutes = String(start.getMinutes()).padStart(2, '0');
         const timeSlot = `${hours}:${minutes}`;
 
-        console.log('Checking timeSlot:', timeSlot); // Log each generated slot
+        //        console.log('Checking timeSlot:', timeSlot); // Log each generated slot
 
         // Create slot element
         const slotElement = document.createElement('div');
@@ -586,7 +584,7 @@ async function generateNewTimeSlots(date) {
 
         // Check if the time slot is already booked
         if (bookedSlots.includes(timeSlot)) {
-            console.log(`Disabling slot: ${timeSlot}`);
+            //            console.log(`Disabling slot: ${timeSlot}`);
             slotElement.classList.add('disabled');
             slotElement.style.backgroundColor = '#999999b8'; // Grey color
             slotElement.style.color = 'white';
@@ -618,10 +616,46 @@ bookingDateInput.addEventListener('change', function () {
     generateNewTimeSlots(selectedDate);
 });
 
+// Function to fetch leads when a customer is selected
+function fetchLeadsForCustomer(customerName) {
+    //    console.log(`Fetching leads for customer: ${customerName}`);
 
-// Function to fetch data for each doctype
+    // Fetch leads based on the selected customer name
+    frappe.call({
+        method: "frappe.client.get",
+        args: {
+            doctype: 'Customer',
+            fields: ['leads'], // Fetch the 'leads' field (assuming 'leads' is a field containing a list)
+            filters: [['name', '=', customerName]], // Filter by customer name
+        },
+        callback: function (response) {
+            const leadData = response.message.leads; // Assuming 'leads' is an array
+            //            console.log("🚀 ~ fetchLeadsForCustomer ~ leadData:", leadData)
+
+            if (leadData && leadData.length > 0) {
+                const leadSelectElement = document.getElementById('lead_id');
+                leadSelectElement.innerHTML = '<option value="">Select Lead</option>'; // Clear previous options
+
+                // Loop through each lead and append it to the select field
+                leadData.forEach(lead => {
+                    const option = document.createElement('option');
+                    option.value = lead.leads;
+                    option.textContent = lead.leads;
+                    leadSelectElement.appendChild(option);
+                });
+            } else {
+                //                console.log('No leads found for this customer.');
+            }
+        }
+    });
+}
+
+const customerName = document.getElementById('customer').value;
+
+
+// Fetch form data for customer, location, room type, etc.
 function fetchFormData(doctype, field, suggestionsElementId, filters = []) {
-    console.log(`Fetching data for: ${doctype} with filters:`, filters);
+    //    console.log(`Fetching data for: ${doctype} with filters:`, filters);
 
     frappe.call({
         method: "frappe.client.get_list",
@@ -631,7 +665,7 @@ function fetchFormData(doctype, field, suggestionsElementId, filters = []) {
             filters: filters,
         },
         callback: function (response) {
-            console.log(`Response for ${doctype}:`, response);
+            //            console.log(`Response for ${doctype}:`, response);
             if (doctype === 'Property Location' || doctype === 'Room Type') {
                 const selectElement = document.getElementById(doctype === 'Property Location' ? 'location' : 'room_type');
                 selectElement.innerHTML = '<option value="">Select</option>'; // Clear previous options
@@ -660,10 +694,14 @@ function fetchFormData(doctype, field, suggestionsElementId, filters = []) {
 
                     // Add click event to select the suggestion
                     suggestionItem.addEventListener('click', function () {
-                        const inputField = doctype === 'Customer' ? 'customer' :
-                            doctype === 'Lead' ? 'lead_id' : 'email';
+                        const inputField = doctype === 'Customer' ? 'customer' : 'email';
                         document.getElementById(inputField).value = item[field];
                         suggestionsElement.innerHTML = ''; // Clear suggestions after selection
+
+                        // If a customer is selected, fetch associated leads
+                        if (doctype === 'Customer') {
+                            fetchLeadsForCustomer(item[field]); // Fetch leads for selected customer
+                        }
                     });
 
                     suggestionsElement.appendChild(suggestionItem);
@@ -675,7 +713,7 @@ function fetchFormData(doctype, field, suggestionsElementId, filters = []) {
 
 // Fetch static data on page load
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Page loaded, fetching locations and room types...');
+    //    console.log('Page loaded, fetching locations and room types...');
     fetchFormData('Property Location', 'name', null); // No suggestions needed
     fetchFormData('Room Type', 'name', null); // No suggestions needed
 });
@@ -686,10 +724,10 @@ document.getElementById('customer').addEventListener('input', function () {
     fetchFormData('Customer', 'customer_name', 'customerSuggestions', [['customer_name', 'like', `%${query}%`]]);
 });
 
-document.getElementById('lead_id').addEventListener('input', function () {
-    const query = this.value;
-    fetchFormData('Lead', 'name', 'leadSuggestions', [['name', 'like', `%${query}%`]]);
-});
+// document.getElementById('lead_id').addEventListener('input', function () {
+//     const query = this.value;
+//     fetchFormData('Lead', 'name', 'leadSuggestions', [['name', 'like', `%${query}%`]]);
+// });
 
 document.getElementById('email').addEventListener('input', function () {
     const query = this.value;
@@ -700,20 +738,20 @@ document.getElementById('email').addEventListener('input', function () {
 document.getElementById('location').addEventListener('change', function () {
     const selectedLocation = this.value;
     const selectedRoomType = document.getElementById('room_type').value;
-    console.log(`Location changed: ${selectedLocation}, Room Type: ${selectedRoomType}`);
+    //    console.log(`Location changed: ${selectedLocation}, Room Type: ${selectedRoomType}`);
     fetchRooms(selectedLocation, selectedRoomType);
 });
 
 document.getElementById('room_type').addEventListener('change', function () {
     const selectedLocation = document.getElementById('location').value;
     const selectedRoomType = this.value;
-    console.log(`Room Type changed: ${selectedRoomType}, Location: ${selectedLocation}`);
+    //    console.log(`Room Type changed: ${selectedRoomType}, Location: ${selectedLocation}`);
     fetchRooms(selectedLocation, selectedRoomType);
 });
 
 // Function to fetch rooms based on selected location and room type
 function fetchRooms(location, roomType) {
-    console.log(`Fetching rooms for location: ${location} and room type: ${roomType}`);
+    //    console.log(`Fetching rooms for location: ${location} and room type: ${roomType}`);
 
     const filters = [
         ['location', '=', location],
@@ -722,7 +760,6 @@ function fetchRooms(location, roomType) {
 
     fetchFormData('Rooms', 'room_name', null, filters); // No suggestions needed for rooms
 }
-
 
 // Handle form submission
 // Handle form submission
@@ -741,7 +778,7 @@ document.getElementById('bookingForm').addEventListener('submit', (event) => {
         booking_time: getSelectedSlots() // Fetch the selected time slots as booking time
     };
 
-    console.log('Form Data Submitted:', formData);
+    //    console.log('Form Data Submitted:', formData);
 
     // Pass the formData to create a new booking record
     createNewBooking(formData);
@@ -772,14 +809,17 @@ function createNewBooking(formData) {
                 email: formData.email,
                 location: formData.location,
                 room_type: formData.room_type,
-                room: formData.room,
+                room: formData.location + ' - ' + formData.room,
                 booking_date: formData.booking_date,
                 booking_time: JSON.stringify(formData.booking_time), // Send selected times
                 block_temp: 0
             }
         },
         callback: function (response) {
-            console.log(response);
+            setTimeout(() => {
+                location.reload(); // Reload the page after the toast
+            }, 2000);
+            //            console.log(response);
             if (response && response.message) {
                 showToast("Booking created successfully!");
                 setTimeout(() => {
