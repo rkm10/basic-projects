@@ -775,6 +775,7 @@ document.getElementById('bookingForm').addEventListener('submit', (event) => {
         room_type: document.getElementById('room_type').value,
         room: document.getElementById('room').value,
         booking_date: document.getElementById('booking_date').value,
+        type_of_booking: document.getElementById('booking_type_id').value,
         booking_time: getSelectedSlots() // Fetch the selected time slots as booking time
     };
 
@@ -812,6 +813,7 @@ function createNewBooking(formData) {
                 room: formData.location + ' - ' + formData.room,
                 booking_date: formData.booking_date,
                 booking_time: JSON.stringify(formData.booking_time), // Send selected times
+                type_of_booking: formData.type_of_booking,
                 block_temp: 0
             }
         },
