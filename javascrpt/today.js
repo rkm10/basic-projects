@@ -69,19 +69,16 @@ function fetchRooms(location, roomType) {
 }
 
 // Event listener for location and date changes
-function updateDetails(selectedLocation) {
+function updateDetails() {
 
     // const location = selectedLocation || localStorage.getItem('selectedLocation');
     const location = document.getElementById('location').value || localStorage.getItem('selectedLocation');
     const bookingDate = document.getElementById('booking_date').value;
-    console.log("🚀 ~ updateDetails ~ bookingDate:", bookingDate)
-
 
     if (location && bookingDate) {
         showDetails(location, bookingDate);
 
     }
-    console.log("🚀 ~ updateDetails ~ showDetails:", location, bookingDate)
 }
 
 document.getElementById('location').addEventListener('change', updateDetails);
@@ -129,7 +126,6 @@ async function fetchBookings(location, roomType, room, dates) {
         },
         callback: function (response) {
             const data = response.message;
-            console.log(data);
             const tableName = 'tableBody';
             constructTable(data, tableName);
         }
@@ -162,13 +158,11 @@ function constructTable(data, tableName) {
         const bookingTime = JSON.parse(item.booking_time);
         const startTime = bookingTime[0];
         let endTime = bookingTime[bookingTime.length - 1];
-        endTime = add30Minutes(endTime);
 
         // Add 30 minutes to the end time
+        endTime = add30Minutes(endTime);
 
-        // Log the adjusted times
-        console.log("Start Time:", startTime);
-        console.log("End Time (plus 30 minutes):", endTime);
+
 
         tableRow.innerHTML = `
             <td>${index + 1}</td>
@@ -176,10 +170,10 @@ function constructTable(data, tableName) {
             <td>${item.customer}</td>
             <td>${item.location}</td>
             <td>${item.room_type}</td>
-            <td class="text-purple-800">${item.room}</td>
-            <td class="text-purple-800">${item.type_of_booking}</td>
-            <td class="text-green-800">${startTime}</td>
-            <td class="text-red-800">${endTime}</td>
+            <td class="text-purple-800 font-medium">${item.room}</td>
+            <td class="text-purple-800 font-medium">${item.type_of_booking}</td>
+            <td class="text-green-800 font-medium">${startTime}</td>
+            <td class="text-red-800 font-medium">${endTime}</td>
             `;
 
         tableBody.appendChild(tableRow);
